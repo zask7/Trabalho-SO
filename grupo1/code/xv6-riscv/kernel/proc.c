@@ -124,6 +124,9 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  p->exec_count = 0;
+  p->cpu_time = 0;
+  p->wait_time = 0;
 
   // Allocate a trapframe page.
   if ((p->trapframe = (struct trapframe *)kalloc()) == 0) {
@@ -359,7 +362,10 @@ kexit(int status)
   p->state = ZOMBIE;
 
   release(&wait_lock);
-
+  printk("PROCESSO %d (%s) FINALIZADO:\n", p->pid, p->name);
+  printk(" - Execucoes: %d\n", p->exec_count);
+  printk(" - Tempo de CPU: %d ticks\n", p->cpu_time);
+  printk(" - Tempo de Espera: %d ticks\n", p->wait_time);
   // Jump into the scheduler, never to return.
   sched();
   panic("zombie exit");
@@ -441,6 +447,7 @@ scheduler(void)
     for (p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if (p->state == RUNNABLE) {
+        p->exec_count++;
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
@@ -703,4 +710,19 @@ int nproc(void){
     release(&p->lock);
   }
   return count;
+}
+
+// Em proc.c
+void update_process_times(void) {
+  struct proc *p;
+  for(p = proc; p < &proc[NPROC]; p++){
+    acquire(&p->lock);
+    if(p->state == RUNNING) {
+      p->cpu_time++; // Se está rodando, ganha tempo de CPU
+    }
+    if(p->state == RUNNABLE) {
+      p->wait_time++; // Se está pronto mas não rodando, ganha tempo de espera
+    }
+    release(&p->lock);
+  }
 }
