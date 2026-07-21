@@ -29,4 +29,3 @@ Para reproduzir as modificações e testar o funcionamento do escalonador e da s
 4. **Analisar a Saída:**
    O programa imprimirá a quantidade de processos antes e depois do `fork()`.
    Ao final da execução dos filhos, o sistema imprimirá o relatório de escalonamento no console contendo as métricas de `exec_count`, `cpu_time` e `wait_time` de cada processo, comprovando o funcionamento do Round Robin modificado.
-   Para sair do QEMU, pressione `Ctrl+A`, solte, e aperte `X`.
