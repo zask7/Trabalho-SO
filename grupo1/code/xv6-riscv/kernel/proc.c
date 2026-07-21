@@ -712,16 +712,15 @@ int nproc(void){
   return count;
 }
 
-// Em proc.c
 void update_process_times(void) {
   struct proc *p;
   for(p = proc; p < &proc[NPROC]; p++){
     acquire(&p->lock);
     if(p->state == RUNNING) {
-      p->cpu_time++; // Se está rodando, ganha tempo de CPU
+      p->cpu_time++; 
     }
     if(p->state == RUNNABLE) {
-      p->wait_time++; // Se está pronto mas não rodando, ganha tempo de espera
+      p->wait_time++; 
     }
     release(&p->lock);
   }
